@@ -7,6 +7,6 @@ export const generateAccessToken = (userId: string , tokenVersion: number): stri
 
 export const generateRefreshToken = (userId: string): string => {
   return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET as string, {
-    expiresIn: "3d",
+    expiresIn: "3d", 
   });
 };

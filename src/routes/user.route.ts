@@ -14,5 +14,5 @@ userRouter.post("/register", createUser);
 userRouter.post("/login", login);
 userRouter.post("/logout", authMiddleware, logout);
 userRouter.get("/profile", authMiddleware, getUserProfile); 
-
+ 
 export default userRouter;

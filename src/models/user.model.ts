@@ -1,6 +1,8 @@
 import { model, mongo, Schema } from "mongoose";
 import { IModel, IUserDocument } from "../schemas/user.schema";
 import bcrypt from "bcrypt";
+import * as argon2 from "argon2";
+
 
 const UserSchema = new Schema<IUserDocument>(
   {
@@ -8,15 +10,19 @@ const UserSchema = new Schema<IUserDocument>(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
       required: true,
+      min: 3,
     },
     tokenVersion: { type: Number, default: 0 },
   },
@@ -27,15 +33,14 @@ const UserSchema = new Schema<IUserDocument>(
 
 UserSchema.pre("save", async function () {
   if (this.isModified("password")) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.password = await argon2.hash(this.password);
   }
 });
 
 UserSchema.methods.comparePassword = async function (
   candidatePassword: string
 ) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return await argon2.verify(candidatePassword, this.password);
 };
 
 export default model<IUserDocument, IModel>("User", UserSchema);
