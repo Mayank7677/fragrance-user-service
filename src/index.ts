@@ -7,6 +7,7 @@ import userRouter from "./routes/user.route";
 import tokenRouter from "./routes/token.route";
 import configureCors from "./configs/cors.config";
 import { errorHandler } from "./middlewares/errorHandler";
+import limiter from "./middlewares/rateLimit";
 
 const app = express();
 
@@ -14,6 +15,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(configureCors());
+app.use(limiter);
 
 // Routes
 app.use("/api/users", userRouter);
