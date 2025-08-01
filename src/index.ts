@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.route";
 import tokenRouter from "./routes/token.route";
 import configureCors from "./configs/cors.config";
-
+import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
 
@@ -19,8 +19,10 @@ app.use(configureCors());
 app.use("/api/users", userRouter);
 app.use("/api/tokens", tokenRouter);
 
-const PORT = process.env.PORT || 3030;
+// Global Error Handler
+app.use(errorHandler);
 
+const PORT = process.env.PORT || 3030;
 app.listen(PORT, () => {
   connectDB();
   console.log(`Server is running on http://localhost:${PORT}`);
