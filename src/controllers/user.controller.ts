@@ -145,3 +145,11 @@ export const getAllUsers = catchAsync(
     res.status(200).json({ users });
   }
 );
+
+export const getUserById = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) return next(new AppError("User not found", 404));
+    res.status(200).json({ user });
+  }
+);

@@ -6,6 +6,7 @@ const userRouter = express.Router();
 import {
   createUser,
   getAllUsers,
+  getUserById,
   getUserProfile,
   login,
   logout,
@@ -16,5 +17,7 @@ userRouter.post("/login", login);
 userRouter.post("/logout", authMiddleware, logout);
 userRouter.get("/profile", authMiddleware, getUserProfile); 
 userRouter.get("/", authMiddleware, getAllUsers);
+userRouter.get("/:id", authMiddleware, getUserById);
+
  
 export default userRouter;
