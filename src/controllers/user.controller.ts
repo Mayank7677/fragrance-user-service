@@ -63,7 +63,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    // Update token version
+    // Increment token version
     user.tokenVersion += 1;
     await user.save();
 
@@ -82,7 +82,7 @@ export const login = async (req: Request, res: Response) => {
 
     await Token.create({
       userId: user._id,
-      token: accessToken,
+      token: refreshToken,
     });
 
     res.status(200).json({ message: "Login successful", accessToken });

@@ -21,7 +21,7 @@ app.use(limiter);
 app.use("/api/users", userRouter);
 app.use("/api/tokens", tokenRouter);
 
-// Global Error Handler
+// Global Error Handler 
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3030;

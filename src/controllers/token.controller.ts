@@ -48,6 +48,10 @@ export const refreshToken = async (
       return res.status(403).json({ message: "User not found" });
     }
 
+    // increment token version
+    user.tokenVersion += 1;
+    await user.save();
+
     // Generate new access token
     const accessToken = generateAccessToken(
       (decoded as any).userId,

@@ -15,14 +15,14 @@ export function errorHandler(
   const env = process.env.NODE_ENV || "development";
 
   if (env === "production") {
-    // ✅ Production Mode: Log every error
+    // Production Mode: Log every error
     logger.error(`${err.statusCode} - ${err.message}`, {
       stack: err.stack,
       path: req.originalUrl,
       method: req.method,
     });
 
-    // ✅ Respond differently based on error type
+    // Respond differently based on error type
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
@@ -36,7 +36,7 @@ export function errorHandler(
       });
     }
   } else {
-    // ✅ Dev Mode: log full info and show full response
+    // Dev Mode: log full info and show full response
     console.error("💥 ERROR:", err);
     logger.error(`${err.statusCode} - ${err.message}`, {
       stack: err.stack,
