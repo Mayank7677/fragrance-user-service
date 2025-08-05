@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import {
   generateAccessToken,
@@ -8,18 +8,29 @@ import User from "../models/user.model";
 import Token from "../models/token.model";
 import bcrypt from "bcrypt";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
+import { catchAsync } from "../utils/catchAsync";
+import { AppError } from "../utils/appError";
+import { registerSchema } from "../validations/user.validation";
+import logger from "../utils/logger";
 
-export const createUser = async (req: Request, res: Response) => {
-  const {username , email, password } = req.body;
+export const createUser = async (req: Request, res: Response , next: NextFunction) => {
+  const { username, email, password } = req.body;
 
-  try {
+  try { 
+    // validation
+    const {error} = registerSchema.validate(req.body);
+    if(error){
+      // logger.error(error.message);
+      return next(new AppError(error.message, 400));
+    }
+
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return next(new AppError("User already exists", 400));
     }
 
-    const user = new User({username , email, password });
+    const user = new User({ username, email, password });
     await user.save();
 
     const accessToken = generateAccessToken(
@@ -47,20 +58,20 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
-  try {
+export const login = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ message: "User not found" });
+      return next(new AppError("Invalid Credentials", 404));
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
+      return next(new AppError("Invalid Credentials", 401));
     }
 
     // Increment token version
@@ -86,11 +97,8 @@ export const login = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ message: "Login successful", accessToken });
-  } catch (error) {
-    console.log("Error logging in:", error);
-    return res.status(500).json({ message: "Internal server error" });
   }
-};
+);
 
 export const logout = async (req: AuthenticatedRequest, res: Response) => {
   const token = req.cookies.refreshToken;
@@ -116,7 +124,10 @@ export const logout = async (req: AuthenticatedRequest, res: Response) => {
   res.json({ message: "Logged out" });
 };
 
-export const getUserProfile = async (req: AuthenticatedRequest, res: Response) => {
+export const getUserProfile = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
   try {
     const user = await User.findById(req.user?.userId);
     if (!user) {

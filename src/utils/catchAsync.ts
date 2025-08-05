@@ -10,7 +10,7 @@ export const catchAsync = (fn: Function) => {
 
 // export const getUser = catchAsync(async (req, res, next) => {
 //   const user = await User.findById(req.params.id);
-//   if (!user) return next(new AppError("User not found", 404));
+//   if (!user) return 
 
 //   res.status(200).json({ user });
 // });
