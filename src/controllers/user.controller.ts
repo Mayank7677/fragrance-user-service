@@ -12,14 +12,19 @@ import { catchAsync } from "../utils/catchAsync";
 import { AppError } from "../utils/appError";
 import { registerSchema } from "../validations/user.validation";
 import logger from "../utils/logger";
+import {  IUserDocument } from "../schemas/user.schema";
 
-export const createUser = async (req: Request, res: Response , next: NextFunction) => {
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { username, email, password } = req.body;
 
-  try { 
+  try {
     // validation
-    const {error} = registerSchema.validate(req.body);
-    if(error){
+    const { error } = registerSchema.validate(req.body);
+    if (error) {
       // logger.error(error.message);
       return next(new AppError(error.message, 400));
     }
@@ -59,16 +64,16 @@ export const createUser = async (req: Request, res: Response , next: NextFunctio
 };
 
 export const login = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }) as IUserDocument;
 
     if (!user) {
       return next(new AppError("Invalid Credentials", 404));
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
       return next(new AppError("Invalid Credentials", 401));
@@ -139,3 +144,10 @@ export const getUserProfile = async (
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getAllUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const users = await User.find().select("-password");
+    res.status(200).json({ users });
+  }
+);
