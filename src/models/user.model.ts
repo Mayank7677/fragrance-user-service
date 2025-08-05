@@ -5,12 +5,7 @@ import * as argon2 from "argon2";
 
 const UserSchema = new Schema<IUserDocument>(
   {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
+    username: { type: String, required: true, unique: true, trim: true },
     email: {
       type: String,
       required: true,
@@ -18,16 +13,43 @@ const UserSchema = new Schema<IUserDocument>(
       lowercase: true,
       trim: true,
     },
-    password: {
-      type: String,
-      required: true,
-      min: 3,
-    },
+    password: { type: String, required: true, min: 3 },
     tokenVersion: { type: Number, default: 0 },
+    role: {
+      type: String,
+      enum: ["customer", "admin", "staff"],
+      default: "customer",
+    },
+
+    firstName: { type: String },
+    lastName: { type: String },
+    phone: { type: String },
+    gender: { type: String, enum: ["male", "female", "other"] },
+    profilePictureUrl: { type: String },
+
+    isActive: { type: Boolean, default: true },
+    isVerified: { type: Boolean, default: false },
+
+    addresses: [
+      {
+        label: {
+          type: String,
+          enum: ["home", "work", "other"],
+          default: "home",
+        },
+        fullName: { type: String, required: true },
+        addressLine1: { type: String, required: true },
+        addressLine2: { type: String },
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        postalCode: { type: String, required: true },
+        country: { type: String, required: true },
+        phone: { type: String },
+        isDefault: { type: Boolean, default: false },
+      },
+    ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 UserSchema.pre("save", async function () {

@@ -10,32 +10,26 @@ import bcrypt from "bcrypt";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import { catchAsync } from "../utils/catchAsync";
 import { AppError } from "../utils/appError";
-import { registerSchema } from "../validations/user.validation";
+// import { registerSchema } from "../validations/user.validation";
 import logger from "../utils/logger";
-import {  IUserDocument } from "../schemas/user.schema";
+import { IUserDocument } from "../schemas/user.schema";
+import { IUser } from "../schemas/user.schema";
 
 export const createUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { username, email, password } = req.body;
+  const userData: IUser = req.body;
 
   try {
-    // validation
-    const { error } = registerSchema.validate(req.body);
-    if (error) {
-      // logger.error(error.message);
-      return next(new AppError(error.message, 400));
-    }
-
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: userData.email });
 
     if (existingUser) {
       return next(new AppError("User already exists", 400));
     }
 
-    const user = new User({ username, email, password });
+    const user = new User(userData);
     await user.save();
 
     const accessToken = generateAccessToken(
@@ -67,7 +61,7 @@ export const login = catchAsync(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }) as IUserDocument;
+    const user = (await User.findOne({ email })) as IUserDocument;
 
     if (!user) {
       return next(new AppError("Invalid Credentials", 404));
