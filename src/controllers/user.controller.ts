@@ -34,9 +34,10 @@ export const createUser = async (
 
     const accessToken = generateAccessToken(
       user._id.toString(),
-      user.tokenVersion
+      user.tokenVersion,
+      user.role
     );
-    const refreshToken = generateRefreshToken(user._id.toString());
+    const refreshToken = generateRefreshToken(user._id.toString() , user.role);
 
     await Token.create({
       userId: user._id,
@@ -79,9 +80,10 @@ export const login = catchAsync(
 
     const accessToken = generateAccessToken(
       user._id.toString(),
-      user.tokenVersion
+      user.tokenVersion,
+      user.role
     );
-    const refreshToken = generateRefreshToken(user._id.toString());
+    const refreshToken = generateRefreshToken(user._id.toString() , user.role);
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,

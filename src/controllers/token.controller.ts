@@ -55,9 +55,10 @@ export const refreshToken = async (
     // Generate new access token
     const accessToken = generateAccessToken(
       (decoded as any).userId,
-      user.tokenVersion
+      user.tokenVersion,
+      (decoded as any).role
     );
-    const newRefreshToken = generateRefreshToken((decoded as any).userId);
+    const newRefreshToken = generateRefreshToken((decoded as any).userId , (decoded as any).role);
 
     // Update the refresh token in the database
     tokenRecord.token = newRefreshToken;
